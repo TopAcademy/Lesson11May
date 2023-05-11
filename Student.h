@@ -21,6 +21,7 @@ public:
     // constructors & desutructor
     Student();
     Student(std::string n, unsigned short y);
+    Student(const Student& obj2);
     ~Student();
     // setter methods
     void set_info(std::string n, unsigned short y);
@@ -55,6 +56,16 @@ Student::Student()
 Student::Student(std::string n, unsigned short y) : Student()
 {
     this->set_info(n, y);
+}
+
+// Copy constructor
+Student::Student(const Student& obj2)
+{
+    this->full_name = obj2.full_name;
+    this->entry_year = obj2.entry_year;
+    this->grades = new unsigned short [grades_max_size];
+    for (int i=0; i<grades_max_size; i++)
+        this->grades[i] = obj2.grades[i];
 }
 
 // Destructor
@@ -108,7 +119,7 @@ const std::string Student::get_info()
 // show rating log
 const void Student::show_rating_log()
 {
-    std::cout << "Rating log: " << std::endl;
+    std::cout << "Rating log of " << full_name << ":\n";
     for (int i=0; i<grades_max_size; i++) {
         if (grades[i]) 
             std::cout << grades[i] << "; ";
