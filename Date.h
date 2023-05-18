@@ -15,6 +15,10 @@ private:
     static std::string month_names[13];
     static short month_days[13];
 public:
+    UShort date_to_days();
+    void days_to_date(UShort d);
+    // static
+    static const UShort start_year;
     // constructors
     Date();
     Date(UShort d, UShort m, UShort y);
@@ -24,8 +28,10 @@ public:
     void add_days(UInt d);    // adds <d> days to stored date
 };
 
-std::string Date::month_names[13]{
-    "", "Jan", "Feb", "March",
+const UShort Date::start_year = 1970;
+
+std::string Date::month_names[13] {
+    "", "Jan", "Feb", "March", 
         "Apr", "May", "June", "July",
         "Aug", "Sept", "Okt", "Nov", "Dec"
 };
@@ -76,9 +82,60 @@ void Date::print_long()
     std::cout << ", " << this->year << std::endl;
 }
 
+// Преобразует дату объекта в число дней,
+// прошедших с 1.01.1970 г. и возвращает это число
+UShort Date::date_to_days()
+{
+    UShort result = 0;
+    UShort years_count = this->year - Date::start_year;
+    // Дней в диапазоне годов
+    result += (years_count * 365);
+    // добавим високосные годы
+    result += (years_count / 4);
+    // Дней в диапазоне ПОЛНЫХ месяцев
+    UShort months_count = this->month - 1;
+    for (int i = 0; i < months_count; i++) {
+        result += month_days[i+1];
+    }
+    // Если текущий год високосный - то еще +1
+    if (this->year % 4 == 0) result += 1;
+    // Добавляем дни
+    result += this->day - 1;
+    return result;
+}
+
+
+// Преобразует число дней с 1.01.1970
+// в формат даты (тип Date)
+void Date::days_to_date(UShort d)
+{
+    // Сколько лет
+    UShort years = d / 365;
+    years -= years / (365 / 4);
+    // Сколько месяцев
+    d = d % ((years*365) + (years / (365 / 4)));
+    UShort months = 0, temp = 0;
+    int i;
+    for (i = 1; i <= 12; i++) {
+        temp += month_days[i];
+        if (temp <= d) months++;
+        else break;
+    }
+    // Какое число
+    temp -= month_days[i];
+    if ((years + start_year) % 4 == 0) temp += 1;
+    d = d % temp;
+    //Date result = Date(years + start_year, months, d);
+    this->year = years + Date::start_year;
+    this->month = months + 1;
+    this->day = d + 1;
+}
+
+
 // Adds <d> days to date (d<=365)
 void Date::add_days(UInt d)
 {
-    if (d > 365) return;
-    // Доп. домашнее задание
+    UShort date_in_days = date_to_days();
+    date_in_days += d;
+    this->days_to_date(date_in_days);
 }
